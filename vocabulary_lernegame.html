@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Japanese Vocabulary Matching Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #2c3e50;
+    }
+
+    #game {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 40px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .column {
+      width: 45%;
+    }
+
+    .column h3 {
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 10px;
+    }
+
+    .word-box {
+      background: #fff;
+      border: 2px solid #3498db;
+      border-radius: 8px;
+      padding: 10px;
+      margin: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .word-box:hover {
+      background: #ecf7ff;
+    }
+
+    .selected {
+      background: #f9e79f !important;
+    }
+
+    .matched {
+      background: #2ecc71 !important;
+      color: white;
+      cursor: default;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #e74c3c;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Japanese Vocabulary Matching Game</h1>
+<p>Match English words with their Japanese counterparts.</p>
+
+<div id="game">
+  <div class="column" id="englishColumn">
+    <h3>English</h3>
+  </div>
+  <div class="column" id="japaneseColumn">
+    <h3>Japanese</h3>
+  </div>
+</div>
+
+<div id="result"></div>
+
+<script>
+  const vocab = [
+    ["Hello", "こんにちは"],
+    ["Thank you", "ありがとう"],
+    ["Yes", "はい"],
+    ["No", "いいえ"],
+    ["Please (request)", "ください"],
+    ["Water", "みず"],
+    ["Fire", "ひ"],
+    ["Tree", "き"],
+    ["House", "いえ"],
+    ["Friend", "ともだち"],
+    ["School", "がっこう"],
+    ["Teacher", "せんせい"],
+    ["Book", "ほん"],
+    ["Car", "くるま"],
+    ["Day", "ひ"],
+    ["Night", "よる"],
+    ["Time", "じかん"],
+    ["Love", "あい"],
+    ["Town", "まち"],
+    ["River", "かわ"],
+    ["Sea", "うみ"],
+    ["Sky", "そら"],
+    ["Dog", "いぬ"],
+    ["Cat", "ねこ"],
+    ["Food", "たべもの"]
+  ];
+
+  const englishColumn = document.getElementById("englishColumn");
+  const japaneseColumn = document.getElementById("japaneseColumn");
+  const resultDiv = document.getElementById("result");
+
+  let selectedEnglish = null;
+  let selectedJapanese = null;
+
+  function shuffle(array) {
+    return array.map(value => ({ value, sort: Math.random() }))
+                .sort((a, b) => a.sort - b.sort)
+                .map(({ value }) => value);
+  }
+
+  const shuffledEnglish = shuffle([...vocab]);
+  const shuffledJapanese = shuffle([...vocab]);
+
+  function createWordBox(word, isEnglish) {
+    const box = document.createElement("div");
+    box.className = "word-box";
+    box.textContent = word;
+    box.dataset.word = word;
+    box.onclick = function () {
+      if (box.classList.contains("matched")) return;
+
+      if (isEnglish) {
+        if (selectedEnglish) selectedEnglish.classList.remove("selected");
+        selectedEnglish = box;
+        box.classList.add("selected");
+      } else {
+        if (selectedJapanese) selectedJapanese.classList.remove("selected");
+        selectedJapanese = box;
+        box.classList.add("selected");
+      }
+
+      if (selectedEnglish && selectedJapanese) {
+        checkMatch();
+      }
+    };
+    return box;
+  }
+
+  function checkMatch() {
+    const engWord = selectedEnglish.dataset.word;
+    const japWord = selectedJapanese.dataset.word;
+    const match = vocab.find(pair => pair[0] === engWord && pair[1] === japWord);
+
+    if (match) {
+      selectedEnglish.classList.add("matched");
+      selectedJapanese.classList.add("matched");
+      selectedEnglish.onclick = null;
+      selectedJapanese.onclick = null;
+      resultDiv.textContent = "✅ Correct!";
+    } else {
+      resultDiv.textContent = "❌ Not a match. Try again.";
+    }
+
+    selectedEnglish.classList.remove("selected");
+    selectedJapanese.classList.remove("selected");
+
+    selectedEnglish = null;
+    selectedJapanese = null;
+
+    const totalMatched = document.querySelectorAll('.matched').length;
+    if (totalMatched === vocab.length * 2) {
+      resultDiv.textContent = "🎉 You've matched all the words!";
+    }
+  }
+
+  // Build columns
+  shuffledEnglish.forEach(([english]) => {
+    englishColumn.appendChild(createWordBox(english, true));
+  });
+
+  shuffledJapanese.forEach(([, japanese]) => {
+    japaneseColumn.appendChild(createWordBox(japanese, false));
+  });
+</script>
+
+</body>
+</html>

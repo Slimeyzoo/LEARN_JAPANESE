@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Kana Trainer</title>
   <style>
     body { font-family: sans-serif; background: #f8f9fa; text-align: center; padding: 20px; }
@@ -22,7 +23,7 @@
     #pauseBtn, #resumeBtn { margin: 10px; padding: 10px 20px; font-size: 16px; }
     #resumeBtn { display: none; }
     select { font-size: 16px; margin: 10px; padding: 5px; }
-     header {
+    header {
       background-color: #2c3e50;
       color: white;
       padding: 1rem 2rem;
@@ -43,7 +44,6 @@
     nav a:hover {
       text-decoration: underline;
     }
-        /* Responsive Navigation für kleine Bildschirme */
     @media (max-width: 600px) {
       header {
         flex-direction: column;
@@ -58,35 +58,32 @@
       }
     }
   </style>
-  <!-- Kompatible Firebase SDKs für klassische HTML-Seiten -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 </head>
 <body>
-  <header>
-    <h1>Japanisch Lernen</h1>
+    <header>
+    <h1>Learn Japanese</h1>
     <nav>
       <a href="index.html">Startseite</a>
       <a href="KatakanaHiragana.html">Hiragana Katakana</a>
       <a href="kanji.html">Kanji</a>
-      <a href="vokabeln.html">Vokabeln</a>
-      <a href="methoden.html">Lernmethoden</a>
-      <a href="kontakt.html">Kontakt</a>
+      <a href="vocabulary.html">Vokabeln</a>
+      <a href="methods.html">Lernmethoden</a>
+      <a href="contact.html">Kontakt</a>
     </nav>
   </header>
   <h1>Kana Trainer</h1>
   <div>
-    <button id="loginBtn" onclick="login()">Mit Google anmelden</button>
-    <button id="logoutBtn" onclick="logout()" style="display: none;">Abmelden</button>
-    <p id="user">Nicht angemeldet</p>
+    <button id="loginBtn" onclick="login()">Sign in with Google</button>
+    <button id="logoutBtn" onclick="logout()" style="display: none;">Sign out</button>
+    <p id="user">Not signed in</p>
   </div>
   <div>
-    <label for="script">Schriftsystem:</label>
+    <label for="script">Script:</label>
     <select id="script">
       <option value="hiragana">Hiragana</option>
       <option value="katakana">Katakana</option>
     </select>
-    <label for="category">Kategorie:</label>
+    <label for="category">Category:</label>
     <select id="category">
       <option value="a">a</option>
       <option value="ka">ka</option>
@@ -95,11 +92,15 @@
   <div id="question">?</div>
   <div class="options" id="options"></div>
   <div id="scoreboard">
-    <p id="timer">Zeit: 10</p>
-    <p>Punkte: <span id="score">0</span> | Streak: <span id="streak">0</span></p>
+    <p id="timer">Time: 10</p>
+    <p>Score: <span id="score">0</span> | Streak: <span id="streak">0</span></p>
     <button id="pauseBtn">Pause</button>
-    <button id="resumeBtn">Weiter</button>
+    <button id="resumeBtn">Resume</button>
   </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDaAyuSvzzk80iH8ydOTWBRhjkpsIZpYRI",
@@ -119,169 +120,159 @@
       auth.signInWithPopup(provider).catch(error => alert(error.message));
     }
 
-    function logout() {
-      auth.signOut();
-    }
+        function logout() {
+          auth.signOut();
+        }
 
-    auth.onAuthStateChanged(user => {
-      const loginBtn = document.getElementById("loginBtn");
-      const logoutBtn = document.getElementById("logoutBtn");
-      const userDisplay = document.getElementById("user");
+        auth.onAuthStateChanged(user => {
+          document.getElementById("loginBtn").style.display = user ? "none" : "inline-block";
+          document.getElementById("logoutBtn").style.display = user ? "inline-block" : "none";
+          document.getElementById("user").textContent = user ? `Signed in as: ${user.displayName}` : "Not signed in";
+        });
 
-      if (user) {
-        loginBtn.style.display = "none";
-        logoutBtn.style.display = "inline-block";
-        userDisplay.textContent = `Angemeldet als: ${user.displayName}`;
-      } else {
-        loginBtn.style.display = "inline-block";
-        logoutBtn.style.display = "none";
-        userDisplay.textContent = "Nicht angemeldet";
+        // KANA DATA (trimmed for brevity — keep as is in your full version)
+    const kanaData = {
+      hiragana: {
+        a: [
+          { question: "あ", correct: "a", options: ["a", "i", "u"] },
+          { question: "い", correct: "i", options: ["e", "i", "a"] },
+          { question: "う", correct: "u", options: ["o", "u", "e"] },
+          { question: "え", correct: "e", options: ["i", "e", "a"] },
+          { question: "お", correct: "o", options: ["o", "u", "e"] }
+        ],
+        ka: [
+          { question: "か", correct: "ka", options: ["ka", "ga", "ha"] },
+          { question: "き", correct: "ki", options: ["ki", "gi", "ri"] },
+          { question: "く", correct: "ku", options: ["ku", "gu", "su"] },
+          { question: "け", correct: "ke", options: ["ke", "ge", "te"] },
+          { question: "こ", correct: "ko", options: ["ho", "ko", "mo"] }
+        ],
+        sa: [
+          { question: "さ", correct: "sa", options: ["sa", "za", "ta"] },
+          { question: "し", correct: "shi", options: ["shi", "ji", "chi"] },
+          { question: "す", correct: "su", options: ["su", "zu", "tsu"] },
+          { question: "せ", correct: "se", options: ["se", "ze", "te"] },
+          { question: "そ", correct: "so", options: ["so", "zo", "to"] }
+        ],
+        ta: [
+          { question: "た", correct: "ta", options: ["ta", "da", "na"] },
+          { question: "ち", correct: "chi", options: ["chi", "ji", "shi"] },
+          { question: "つ", correct: "tsu", options: ["tsu", "zu", "su"] },
+          { question: "て", correct: "te", options: ["te", "de", "ne"] },
+          { question: "と", correct: "to", options: ["to", "do", "no"] }
+        ],
+        na: [
+          { question: "な", correct: "na", options: ["na", "ta", "ma"] },
+          { question: "に", correct: "ni", options: ["ni", "mi", "ri"] },
+          { question: "ぬ", correct: "nu", options: ["nu", "mu", "ku"] },
+          { question: "ね", correct: "ne", options: ["ne", "re", "me"] },
+          { question: "の", correct: "no", options: ["no", "to", "mo"] }
+        ],
+        ha: [
+          { question: "は", correct: "ha", options: ["ha", "ba", "pa"] },
+          { question: "ひ", correct: "hi", options: ["hi", "bi", "pi"] },
+          { question: "ふ", correct: "fu", options: ["fu", "bu", "pu"] },
+          { question: "へ", correct: "he", options: ["he", "be", "pe"] },
+          { question: "ほ", correct: "ho", options: ["ho", "bo", "po"] }
+        ],
+        ma: [
+          { question: "ま", correct: "ma", options: ["ma", "na", "ba"] },
+          { question: "み", correct: "mi", options: ["mi", "ni", "ri"] },
+          { question: "む", correct: "mu", options: ["mu", "nu", "ku"] },
+          { question: "め", correct: "me", options: ["me", "ne", "re"] },
+          { question: "も", correct: "mo", options: ["mo", "no", "to"] }
+        ],
+        ya: [
+          { question: "や", correct: "ya", options: ["ya", "wa", "ra"] },
+          { question: "ゆ", correct: "yu", options: ["yu", "yo", "yu"] },
+          { question: "よ", correct: "yo", options: ["yo", "yu", "ya"] }
+        ],
+        ra: [
+          { question: "ら", correct: "ra", options: ["ra", "la", "na"] },
+          { question: "り", correct: "ri", options: ["ri", "li", "mi"] },
+          { question: "る", correct: "ru", options: ["ru", "lu", "ku"] },
+          { question: "れ", correct: "re", options: ["re", "le", "ne"] },
+          { question: "ろ", correct: "ro", options: ["ro", "lo", "to"] }
+        ],
+        wa: [
+          { question: "わ", correct: "wa", options: ["wa", "ra", "ma"] },
+          { question: "を", correct: "wo", options: ["wo", "o", "mo"] }
+        ],
+        n: [
+          { question: "ん", correct: "n", options: ["n", "m", "nn"] }
+        ]
+      },
+      katakana: {
+        a: [
+          { question: "ア", correct: "a", options: ["a", "i", "u"] },
+          { question: "イ", correct: "i", options: ["e", "i", "a"] },
+          { question: "ウ", correct: "u", options: ["o", "u", "e"] },
+          { question: "エ", correct: "e", options: ["i", "e", "a"] },
+          { question: "オ", correct: "o", options: ["o", "u", "e"] }
+        ],
+        ka: [
+          { question: "カ", correct: "ka", options: ["ka", "ga", "ha"] },
+          { question: "キ", correct: "ki", options: ["ki", "gi", "ri"] },
+          { question: "ク", correct: "ku", options: ["ku", "gu", "su"] },
+          { question: "ケ", correct: "ke", options: ["ke", "ge", "te"] },
+          { question: "コ", correct: "ko", options: ["ho", "ko", "mo"] }
+        ],
+        sa: [
+          { question: "サ", correct: "sa", options: ["sa", "za", "ta"] },
+          { question: "シ", correct: "shi", options: ["shi", "ji", "chi"] },
+          { question: "ス", correct: "su", options: ["su", "zu", "tsu"] },
+          { question: "セ", correct: "se", options: ["se", "ze", "te"] },
+          { question: "ソ", correct: "so", options: ["so", "zo", "to"] }
+        ],
+        ta: [
+          { question: "タ", correct: "ta", options: ["ta", "da", "na"] },
+          { question: "チ", correct: "chi", options: ["chi", "ji", "shi"] },
+          { question: "ツ", correct: "tsu", options: ["tsu", "zu", "su"] },
+          { question: "テ", correct: "te", options: ["te", "de", "ne"] },
+          { question: "ト", correct: "to", options: ["to", "do", "no"] }
+        ],
+        na: [
+          { question: "ナ", correct: "na", options: ["na", "ta", "ma"] },
+          { question: "ニ", correct: "ni", options: ["ni", "mi", "ri"] },
+          { question: "ヌ", correct: "nu", options: ["nu", "mu", "ku"] },
+          { question: "ネ", correct: "ne", options: ["ne", "re", "me"] },
+          { question: "ノ", correct: "no", options: ["no", "to", "mo"] }
+        ],
+        ha: [
+          { question: "ハ", correct: "ha", options: ["ha", "ba", "pa"] },
+          { question: "ヒ", correct: "hi", options: ["hi", "bi", "pi"] },
+          { question: "フ", correct: "fu", options: ["fu", "bu", "pu"] },
+          { question: "ヘ", correct: "he", options: ["he", "be", "pe"] },
+          { question: "ホ", correct: "ho", options: ["ho", "bo", "po"] }
+        ],
+        ma: [
+          { question: "マ", correct: "ma", options: ["ma", "na", "ba"] },
+          { question: "ミ", correct: "mi", options: ["mi", "ni", "ri"] },
+          { question: "ム", correct: "mu", options: ["mu", "nu", "ku"] },
+          { question: "メ", correct: "me", options: ["me", "ne", "re"] },
+          { question: "モ", correct: "mo", options: ["mo", "no", "to"] }
+        ],
+        ya: [
+          { question: "ヤ", correct: "ya", options: ["ya", "wa", "ra"] },
+          { question: "ユ", correct: "yu", options: ["yu", "yo", "yu"] },
+          { question: "ヨ", correct: "yo", options: ["yo", "yu", "ya"] }
+        ],
+        ra: [
+          { question: "ラ", correct: "ra", options: ["ra", "la", "na"] },
+          { question: "リ", correct: "ri", options: ["ri", "li", "mi"] },
+          { question: "ル", correct: "ru", options: ["ru", "lu", "ku"] },
+          { question: "レ", correct: "re", options: ["re", "le", "ne"] },
+          { question: "ロ", correct: "ro", options: ["ro", "lo", "to"] }
+        ],
+        wa: [
+          { question: "ワ", correct: "wa", options: ["wa", "ra", "ma"] },
+          { question: "ヲ", correct: "wo", options: ["wo", "o", "mo"] }
+        ],
+        n: [
+          { question: "ン", correct: "n", options: ["n", "m", "nn"] }
+        ]
       }
-    });
-
-const kanaData = {
-  hiragana: {
-    a: [
-      { question: "あ", correct: "a", options: ["a", "i", "u"] },
-      { question: "い", correct: "i", options: ["e", "i", "a"] },
-      { question: "う", correct: "u", options: ["o", "u", "e"] },
-      { question: "え", correct: "e", options: ["i", "e", "a"] },
-      { question: "お", correct: "o", options: ["o", "u", "e"] }
-    ],
-    ka: [
-      { question: "か", correct: "ka", options: ["ka", "ga", "ha"] },
-      { question: "き", correct: "ki", options: ["ki", "gi", "ri"] },
-      { question: "く", correct: "ku", options: ["ku", "gu", "su"] },
-      { question: "け", correct: "ke", options: ["ke", "ge", "te"] },
-      { question: "こ", correct: "ko", options: ["ho", "ko", "mo"] }
-    ],
-    sa: [
-      { question: "さ", correct: "sa", options: ["sa", "za", "ta"] },
-      { question: "し", correct: "shi", options: ["shi", "ji", "chi"] },
-      { question: "す", correct: "su", options: ["su", "zu", "tsu"] },
-      { question: "せ", correct: "se", options: ["se", "ze", "te"] },
-      { question: "そ", correct: "so", options: ["so", "zo", "to"] }
-    ],
-    ta: [
-      { question: "た", correct: "ta", options: ["ta", "da", "na"] },
-      { question: "ち", correct: "chi", options: ["chi", "ji", "shi"] },
-      { question: "つ", correct: "tsu", options: ["tsu", "zu", "su"] },
-      { question: "て", correct: "te", options: ["te", "de", "ne"] },
-      { question: "と", correct: "to", options: ["to", "do", "no"] }
-    ],
-    na: [
-      { question: "な", correct: "na", options: ["na", "ta", "ma"] },
-      { question: "に", correct: "ni", options: ["ni", "mi", "ri"] },
-      { question: "ぬ", correct: "nu", options: ["nu", "mu", "ku"] },
-      { question: "ね", correct: "ne", options: ["ne", "re", "me"] },
-      { question: "の", correct: "no", options: ["no", "to", "mo"] }
-    ],
-    ha: [
-      { question: "は", correct: "ha", options: ["ha", "ba", "pa"] },
-      { question: "ひ", correct: "hi", options: ["hi", "bi", "pi"] },
-      { question: "ふ", correct: "fu", options: ["fu", "bu", "pu"] },
-      { question: "へ", correct: "he", options: ["he", "be", "pe"] },
-      { question: "ほ", correct: "ho", options: ["ho", "bo", "po"] }
-    ],
-    ma: [
-      { question: "ま", correct: "ma", options: ["ma", "na", "ba"] },
-      { question: "み", correct: "mi", options: ["mi", "ni", "ri"] },
-      { question: "む", correct: "mu", options: ["mu", "nu", "ku"] },
-      { question: "め", correct: "me", options: ["me", "ne", "re"] },
-      { question: "も", correct: "mo", options: ["mo", "no", "to"] }
-    ],
-    ya: [
-      { question: "や", correct: "ya", options: ["ya", "wa", "ra"] },
-      { question: "ゆ", correct: "yu", options: ["yu", "yo", "yu"] },
-      { question: "よ", correct: "yo", options: ["yo", "yu", "ya"] }
-    ],
-    ra: [
-      { question: "ら", correct: "ra", options: ["ra", "la", "na"] },
-      { question: "り", correct: "ri", options: ["ri", "li", "mi"] },
-      { question: "る", correct: "ru", options: ["ru", "lu", "ku"] },
-      { question: "れ", correct: "re", options: ["re", "le", "ne"] },
-      { question: "ろ", correct: "ro", options: ["ro", "lo", "to"] }
-    ],
-    wa: [
-      { question: "わ", correct: "wa", options: ["wa", "ra", "ma"] },
-      { question: "を", correct: "wo", options: ["wo", "o", "mo"] }
-    ],
-    n: [
-      { question: "ん", correct: "n", options: ["n", "m", "nn"] }
-    ]
-  },
-  katakana: {
-    a: [
-      { question: "ア", correct: "a", options: ["a", "i", "u"] },
-      { question: "イ", correct: "i", options: ["e", "i", "a"] },
-      { question: "ウ", correct: "u", options: ["o", "u", "e"] },
-      { question: "エ", correct: "e", options: ["i", "e", "a"] },
-      { question: "オ", correct: "o", options: ["o", "u", "e"] }
-    ],
-    ka: [
-      { question: "カ", correct: "ka", options: ["ka", "ga", "ha"] },
-      { question: "キ", correct: "ki", options: ["ki", "gi", "ri"] },
-      { question: "ク", correct: "ku", options: ["ku", "gu", "su"] },
-      { question: "ケ", correct: "ke", options: ["ke", "ge", "te"] },
-      { question: "コ", correct: "ko", options: ["ho", "ko", "mo"] }
-    ],
-    sa: [
-      { question: "サ", correct: "sa", options: ["sa", "za", "ta"] },
-      { question: "シ", correct: "shi", options: ["shi", "ji", "chi"] },
-      { question: "ス", correct: "su", options: ["su", "zu", "tsu"] },
-      { question: "セ", correct: "se", options: ["se", "ze", "te"] },
-      { question: "ソ", correct: "so", options: ["so", "zo", "to"] }
-    ],
-    ta: [
-      { question: "タ", correct: "ta", options: ["ta", "da", "na"] },
-      { question: "チ", correct: "chi", options: ["chi", "ji", "shi"] },
-      { question: "ツ", correct: "tsu", options: ["tsu", "zu", "su"] },
-      { question: "テ", correct: "te", options: ["te", "de", "ne"] },
-      { question: "ト", correct: "to", options: ["to", "do", "no"] }
-    ],
-    na: [
-      { question: "ナ", correct: "na", options: ["na", "ta", "ma"] },
-      { question: "ニ", correct: "ni", options: ["ni", "mi", "ri"] },
-      { question: "ヌ", correct: "nu", options: ["nu", "mu", "ku"] },
-      { question: "ネ", correct: "ne", options: ["ne", "re", "me"] },
-      { question: "ノ", correct: "no", options: ["no", "to", "mo"] }
-    ],
-    ha: [
-      { question: "ハ", correct: "ha", options: ["ha", "ba", "pa"] },
-      { question: "ヒ", correct: "hi", options: ["hi", "bi", "pi"] },
-      { question: "フ", correct: "fu", options: ["fu", "bu", "pu"] },
-      { question: "ヘ", correct: "he", options: ["he", "be", "pe"] },
-      { question: "ホ", correct: "ho", options: ["ho", "bo", "po"] }
-    ],
-    ma: [
-      { question: "マ", correct: "ma", options: ["ma", "na", "ba"] },
-      { question: "ミ", correct: "mi", options: ["mi", "ni", "ri"] },
-      { question: "ム", correct: "mu", options: ["mu", "nu", "ku"] },
-      { question: "メ", correct: "me", options: ["me", "ne", "re"] },
-      { question: "モ", correct: "mo", options: ["mo", "no", "to"] }
-    ],
-    ya: [
-      { question: "ヤ", correct: "ya", options: ["ya", "wa", "ra"] },
-      { question: "ユ", correct: "yu", options: ["yu", "yo", "yu"] },
-      { question: "ヨ", correct: "yo", options: ["yo", "yu", "ya"] }
-    ],
-    ra: [
-      { question: "ラ", correct: "ra", options: ["ra", "la", "na"] },
-      { question: "リ", correct: "ri", options: ["ri", "li", "mi"] },
-      { question: "ル", correct: "ru", options: ["ru", "lu", "ku"] },
-      { question: "レ", correct: "re", options: ["re", "le", "ne"] },
-      { question: "ロ", correct: "ro", options: ["ro", "lo", "to"] }
-    ],
-    wa: [
-      { question: "ワ", correct: "wa", options: ["wa", "ra", "ma"] },
-      { question: "ヲ", correct: "wo", options: ["wo", "o", "mo"] }
-    ],
-    n: [
-      { question: "ン", correct: "n", options: ["n", "m", "nn"] }
-    ]
-  }
-};
-
+    };
 
     let currentScript = 'hiragana';
     let currentCategory = 'a';
@@ -303,6 +294,11 @@ const kanaData = {
 
     function pickQuestion() {
       const questions = kanaData[currentScript][currentCategory];
+      if (!questions) {
+        questionEl.textContent = "No questions for this category.";
+        optionsEl.innerHTML = "";
+        return;
+      }
       currentQuestion = questions[Math.floor(Math.random() * questions.length)];
     }
 
@@ -344,11 +340,11 @@ const kanaData = {
     function startTimer() {
       clearInterval(timerId);
       timer = 10;
-      timerEl.textContent = `Zeit: ${timer}`;
+      timerEl.textContent = `Time: ${timer}`;
       timerId = setInterval(() => {
         if (!isPaused) {
           timer--;
-          timerEl.textContent = `Zeit: ${timer}`;
+          timerEl.textContent = `Time: ${timer}`;
           if (timer <= 0) {
             clearInterval(timerId);
             streak = 0;
@@ -361,6 +357,7 @@ const kanaData = {
 
     function nextQuestion() {
       pickQuestion();
+      if (!currentQuestion) return;
       renderQuestion();
       startTimer();
     }
@@ -376,7 +373,7 @@ const kanaData = {
       isPaused = false;
       pauseBtn.style.display = "inline-block";
       resumeBtn.style.display = "none";
-      nextQuestion(); // reset question and timer
+      nextQuestion();
     };
 
     document.getElementById("script").onchange = e => {
