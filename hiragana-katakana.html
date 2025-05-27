@@ -132,9 +132,18 @@
 <select id="category-select" aria-label="Select Kana Category">
   <option value="hiragana-a">Hiragana: A-row (あ, い, う, え, お)</option>
   <option value="hiragana-ka">Hiragana: Ka-row (か, き, く, け, こ)</option>
+  <option value="hiragana-sa">Hiragana: Sa-row (さ, し, す, せ, そ)</option>
+  <option value="hiragana-ta">Hiragana: Ta-row (た, ち, つ, て, と)</option>
+  <option value="hiragana-na">Hiragana: Na-row (な, に, ぬ, ね, の)</option>
+  <option value="hiragana-ha">Hiragana: Ha-row (は, ひ, ふ, へ, ほ)</option>
+  <option value="hiragana-ma">Hiragana: Ma-row (ま, み, む, め, も)</option>
+  <option value="hiragana-ya">Hiragana: Ya-row (や, ゆ, よ)</option>
+  <option value="hiragana-ra">Hiragana: Ra-row (ら, り, る, れ, ろ)</option>
+  <option value="hiragana-wa">Hiragana: Wa-row (わ, を)</option>
   <option value="katakana-a">Katakana: A-row (ア, イ, ウ, エ, オ)</option>
   <option value="katakana-ka">Katakana: Ka-row (カ, キ, ク, ケ, コ)</option>
 </select>
+
 
 <div id="score">Score: 0</div>
 <div id="timer">Time left: 10s</div>
@@ -182,27 +191,90 @@
 
   // Kana data by categories
   const kanaCategories = {
-    "hiragana-a": [
-      { kana: "あ", romaji: "a" },
-      { kana: "い", romaji: "i" },
-      { kana: "う", romaji: "u" },
-      { kana: "え", romaji: "e" },
-      { kana: "お", romaji: "o" }
-    ],
-    "hiragana-ka": [
-      { kana: "か", romaji: "ka" },
-      { kana: "き", romaji: "ki" },
-      { kana: "く", romaji: "ku" },
-      { kana: "け", romaji: "ke" },
-      { kana: "こ", romaji: "ko" }
-    ],
-    "katakana-a": [
-      { kana: "ア", romaji: "a" },
-      { kana: "イ", romaji: "i" },
-      { kana: "ウ", romaji: "u" },
-      { kana: "エ", romaji: "e" },
-      { kana: "オ", romaji: "o" }
-    ],
+  "hiragana-a": [
+    { kana: "あ", romaji: "a" },
+    { kana: "い", romaji: "i" },
+    { kana: "う", romaji: "u" },
+    { kana: "え", romaji: "e" },
+    { kana: "お", romaji: "o" }
+  ],
+  "hiragana-ka": [
+    { kana: "か", romaji: "ka" },
+    { kana: "き", romaji: "ki" },
+    { kana: "く", romaji: "ku" },
+    { kana: "け", romaji: "ke" },
+    { kana: "こ", romaji: "ko" }
+  ],
+  "hiragana-sa": [
+    { kana: "さ", romaji: "sa" },
+    { kana: "し", romaji: "shi" },
+    { kana: "す", romaji: "su" },
+    { kana: "せ", romaji: "se" },
+    { kana: "そ", romaji: "so" }
+  ],
+  "hiragana-ta": [
+    { kana: "た", romaji: "ta" },
+    { kana: "ち", romaji: "chi" },
+    { kana: "つ", romaji: "tsu" },
+    { kana: "て", romaji: "te" },
+    { kana: "と", romaji: "to" }
+  ],
+  "hiragana-na": [
+    { kana: "な", romaji: "na" },
+    { kana: "に", romaji: "ni" },
+    { kana: "ぬ", romaji: "nu" },
+    { kana: "ね", romaji: "ne" },
+    { kana: "の", romaji: "no" }
+  ],
+  "hiragana-ha": [
+    { kana: "は", romaji: "ha" },
+    { kana: "ひ", romaji: "hi" },
+    { kana: "ふ", romaji: "fu" },
+    { kana: "へ", romaji: "he" },
+    { kana: "ほ", romaji: "ho" }
+  ],
+  "hiragana-ma": [
+    { kana: "ま", romaji: "ma" },
+    { kana: "み", romaji: "mi" },
+    { kana: "む", romaji: "mu" },
+    { kana: "め", romaji: "me" },
+    { kana: "も", romaji: "mo" }
+  ],
+  "hiragana-ya": [
+    { kana: "や", romaji: "ya" },
+    { kana: "", romaji: "" },
+    { kana: "ゆ", romaji: "yu" },
+    { kana: "", romaji: "" },
+    { kana: "よ", romaji: "yo" }
+  ],
+  "hiragana-ra": [
+    { kana: "ら", romaji: "ra" },
+    { kana: "り", romaji: "ri" },
+    { kana: "る", romaji: "ru" },
+    { kana: "れ", romaji: "re" },
+    { kana: "ろ", romaji: "ro" }
+  ],
+  "hiragana-wa": [
+    { kana: "わ", romaji: "wa" },
+    { kana: "", romaji: "" },
+    { kana: "", romaji: "" },
+    { kana: "", romaji: "" },
+    { kana: "を", romaji: "wo" }
+  ],
+  "katakana-a": [
+    { kana: "ア", romaji: "a" },
+    { kana: "イ", romaji: "i" },
+    { kana: "ウ", romaji: "u" },
+    { kana: "エ", romaji: "e" },
+    { kana: "オ", romaji: "o" }
+  ],
+  "katakana-ka": [
+    { kana: "カ", romaji: "ka" },
+    { kana: "キ", romaji: "ki" },
+    { kana: "ク", romaji: "ku" },
+    { kana: "ケ", romaji: "ke" },
+    { kana: "コ", romaji: "ko" }
+  ],
     "katakana-ka": [
       { kana: "カ", romaji: "ka" },
       { kana: "キ", romaji: "ki" },
