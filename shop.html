@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Shop</title>
+<style>
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    background: #f9f9f9;
+  }
+  .container {
+    max-width: 1000px;
+    margin: auto;
+    padding: 20px;
+  }
+  .shop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+  }
+  .item {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+  .item h2 {
+    margin-top: 0;
+  }
+  .item button {
+    background: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .item button:hover {
+    background: #45a049;
+  }
+</style>
+
+</head>
+<body>
+    <div id="navbar"></div>
+<script>
+  fetch("navbar.html")
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("navbar").innerHTML = html;
+    });
+</script>
+
+  <h1>Game Shop</h1>
+  <p id="user">Not signed in</p>
+  <p>Score: <span id="score">0</span></p>
+
+  <div class="item">
+    <h2>Degen (100 points)</h2>
+    <button onclick="buyItem('degen', 100)">Buy</button>
+  </div>
+
+  <div class="item">
+    <h2>Double Score (200 points)</h2>
+    <button onclick="buyItem('double_score', 200)">Buy</button>
+  </div>
+
+  <div class="item">
+    <h2>Extra Time (150 points)</h2>
+    <button onclick="buyItem('extra_time', 150)">Buy</button>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDaAyuSvzzk80iH8ydOTWBRhjkpsIZpYRI",
+      authDomain: "hiragana-trainer.firebaseapp.com",
+      projectId: "hiragana-trainer",
+      storageBucket: "hiragana-trainer.appspot.com",
+      messagingSenderId: "1061396749731",
+      appId: "1:1061396749731:web:e3e349d735b9401a4ece16",
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let userId = null;
+    let score = 0;
+
+    auth.onAuthStateChanged(async user => {
+      if (user) {
+        userId = user.uid;
+        document.getElementById("user").textContent = `Signed in as: ${user.displayName}`;
+        const doc = await db.collection("users").doc(userId).get();
+        if (doc.exists) {
+          score = doc.data().score || 0;
+          document.getElementById("score").textContent = score;
+        }
+      }
+    });
+
+    async function buyItem(itemName, cost) {
+      if (!userId) {
+        alert("Please sign in first.");
+        return;
+      }
+      if (score < cost) {
+        alert("Not enough points.");
+        return;
+      }
+
+      score -= cost;
+      document.getElementById("score").textContent = score;
+
+      const userRef = db.collection("users").doc(userId);
+      const doc = await userRef.get();
+      const items = doc.data().items || [];
+      items.push(itemName);
+
+      await userRef.update({ score, items });
+      alert(`You purchased: ${itemName}`);
+    }
+  </script>
+</body>
+</html>

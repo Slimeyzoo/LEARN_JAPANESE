@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Learn Japanese</title>
-    <style>
+     <style>
         /* Basic styling */
         body {
             font-family: Arial, sans-serif;
@@ -110,19 +104,21 @@
             }
         }
     </style>
-</head>
-<body>
-<div id="navbar"></div>
+ <header>
+    <h1>Learn Japanese</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="KatakanaHiragana.html">Hiragana Katakana</a>
+      <a href="kanji.html">Kanji</a>
+      <a href="vocabulary.html">vocabulary</a>
+      <a href="methods.html">methods</a>
+      <a href="contact.html">contact</a>
+    </nav>
+    </nav>
 <script>
-  fetch("navbar.html")
-    .then(res => res.text())
-    .then(html => {
-      document.getElementById("navbar").innerHTML = html;
-    });
+    document.getElementById("userInfo").innerHTML = `
+  <img src="${user.photoURL}" style="width:30px;border-radius:50%;vertical-align:middle;margin-right:8px;">
+  ${user.displayName}
+`;
 </script>
-
-          <h1>Contact</h1>
-
-    <a href="https://dsc.gg/the-anime-universe/">Discord</a>
-</body>
-</html>
+  </header>

@@ -96,16 +96,14 @@
   </style>
 </head>
 <body>
-    <header>
-    <h1>Learn Japanese</h1>
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="KatakanaHiragana.html">Hiragana Katakana</a>
-      <a href="kanji.html">Kanji</a>
-      <a href="vocabulary.html">vocabulary</a>
-      <a href="methods.html">methods</a>
-      <a href="contact.html">contact</a>
-    </nav>
-  </header>
+<div id="navbar"></div>
+<script>
+  fetch("navbar.html")
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("navbar").innerHTML = html;
+    });
+</script>
+
 </body>
 </html>

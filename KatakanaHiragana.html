@@ -57,20 +57,21 @@
         margin-right: 1rem;
       }
     }
+      .degen-effect {
+        background-image: url('sword-bg.png');
+        background-size: cover;
+      }
   </style>
 </head>
 <body>
-    <header>
-    <h1>Learn Japanese</h1>
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="KatakanaHiragana.html">Hiragana Katakana</a>
-      <a href="kanji.html">Kanji</a>
-      <a href="vocabulary.html">vocabulary</a>
-      <a href="methods.html">methods</a>
-      <a href="contact.html">contact</a>
-    </nav>
-  </header>
+  <div id="navbar"></div>
+<script>
+  fetch("navbar.html")
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("navbar").innerHTML = html;
+    });
+</script>
   <h1>Kana Trainer</h1>
   <div>
     <button id="loginBtn" onclick="login()">Sign in with Google</button>
@@ -101,6 +102,8 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 
+  <a href="shop.html" style="margin-right:20px; color:white;">🛍️ Shop</a>
+</div>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDaAyuSvzzk80iH8ydOTWBRhjkpsIZpYRI",
@@ -395,6 +398,36 @@
     window.onload = () => {
       nextQuestion();
     };
+    let multiplier = 1;
+
+function addPoints(points) {
+  score += points * multiplier;
+  updateScore();
+}
+let activeItems = [];
+
+auth.onAuthStateChanged(async user => {
+  if (user) {
+    userId = user.uid;
+    const doc = await db.collection("users").doc(userId).get();
+    score = doc.data().score || 0;
+    activeItems = doc.data().items || [];
+
+    // Activate effects
+    if (activeItems.includes("double_score")) {
+      multiplier = 2;
+    }
+    if (activeItems.includes("extra_time")) {
+      time += 3;
+    }
+    if (activeItems.includes("degen")) {
+      document.body.classList.add("degen-effect"); // Add custom style or sound
+    }
+
+    updateScore();
+  }
+});
+
   </script>
 </body>
 </html>
