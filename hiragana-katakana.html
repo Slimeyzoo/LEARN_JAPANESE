@@ -1,67 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Kana Trainer</title>
-  <style>
-    body { font-family: sans-serif; background: #f8f9fa; text-align: center; padding: 20px; }
-    h1 { margin-bottom: 10px; }
-    #question { font-size: 72px; margin: 20px; }
-    .options button {
-      font-size: 24px;
-      padding: 10px 20px;
-      margin: 10px;
-      cursor: pointer;
-      border-radius: 8px;
-      border: none;
-      background-color: #dee2e6;
-      transition: 0.3s;
-    }
-    .options button:hover { background-color: #ced4da; }
-    #scoreboard { margin-top: 20px; }
-    #pauseBtn, #resumeBtn { margin: 10px; padding: 10px 20px; font-size: 16px; }
-    #resumeBtn { display: none; }
-    select { font-size: 16px; margin: 10px; padding: 5px; }
-    header {
-      background-color: #2c3e50;
-      color: white;
-      padding: 1rem 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 1.5rem;
-    }
-    nav a {
-      color: white;
-      text-decoration: none;
-      margin-left: 1.2rem;
-      font-weight: 600;
-    }
-    nav a:hover {
-      text-decoration: underline;
-    }
-    @media (max-width: 600px) {
-      header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      nav {
-        margin-top: 0.5rem;
-      }
-      nav a {
-        margin-left: 0;
-        margin-right: 1rem;
-      }
-    }
-      .degen-effect {
-        background-image: url('sword-bg.png');
-        background-size: cover;
-      }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Japanese Kana Learning Game with Shop & Firebase</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #fff9f0;
+    margin: 0; padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  h1 {
+    color: #3a6bbf;
+  }
+  #category-select {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #aaa;
+  }
+  #score, #timer {
+    font-size: 1.2rem;
+    margin: 10px 0;
+  }
+  #timer {
+    transition: background-color 0.3s ease;
+  }
+  #kana {
+    font-size: 5rem;
+    margin: 25px 0 20px;
+  }
+  #choices button {
+    margin: 0 10px 15px 10px;
+    padding: 14px 24px;
+    font-size: 1.3rem;
+    border-radius: 10px;
+    border: 2px solid #3a6bbf;
+    cursor: pointer;
+    background: white;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  #choices button.correct {
+    background-color: #4caf50;
+    color: white;
+    border-color: #388e3c;
+  }
+  #choices button.wrong {
+    background-color: #f44336;
+    color: white;
+    border-color: #b33a3a;
+  }
+  #choices button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  #feedback {
+    height: 1.8rem;
+    font-size: 1.2rem;
+    color: #555;
+    min-height: 24px;
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+  #shop {
+    margin-top: 30px;
+    width: 320px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    padding: 15px 20px;
+    text-align: center;
+  }
+  #shop h2 {
+    color: #3a6bbf;
+    margin-top: 0;
+  }
+  #shop button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    border-radius: 6px;
+    background-color: #3a6bbf;
+    color: white;
+    border: none;
+    transition: background-color 0.3s;
+  }
+  #shop button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+  }
+  #leaderboard {
+    margin-top: 30px;
+    width: 320px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    padding: 15px 20px;
+  }
+  #leaderboard h2 {
+    color: #3a6bbf;
+    margin-top: 0;
+    margin-bottom: 12px;
+  }
+  #leaderboard-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+  }
+  #leaderboard-list li {
+    margin-bottom: 6px;
+  }
+</style>
 </head>
 <body>
   <div id="navbar"></div>
@@ -72,40 +126,48 @@
       document.getElementById("navbar").innerHTML = html;
     });
 </script>
-  <h1>Kana Trainer</h1>
-  <div>
-    <button id="loginBtn" onclick="login()">Sign in with Google</button>
-    <button id="logoutBtn" onclick="logout()" style="display: none;">Sign out</button>
-    <p id="user">Not signed in</p>
-  </div>
-  <div>
-    <label for="script">Script:</label>
-    <select id="script">
-      <option value="hiragana">Hiragana</option>
-      <option value="katakana">Katakana</option>
-    </select>
-    <label for="category">Category:</label>
-    <select id="category">
-      <option value="a">a</option>
-      <option value="ka">ka</option>
-    </select>
-  </div>
-  <div id="question">?</div>
-  <div class="options" id="options"></div>
-  <div id="scoreboard">
-    <p id="timer">Time: 10</p>
-    <p>Score: <span id="score">0</span> | Streak: <span id="streak">0</span></p>
-    <button id="pauseBtn">Pause</button>
-    <button id="resumeBtn">Resume</button>
-  </div>
 
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<h1>Learn Japanese Kana</h1>
 
-  <a href="shop.html" style="margin-right:20px; color:white;">🛍️ Shop</a>
+<select id="category-select" aria-label="Select Kana Category">
+  <option value="hiragana-a">Hiragana: A-row (あ, い, う, え, お)</option>
+  <option value="hiragana-ka">Hiragana: Ka-row (か, き, く, け, こ)</option>
+  <option value="katakana-a">Katakana: A-row (ア, イ, ウ, エ, オ)</option>
+  <option value="katakana-ka">Katakana: Ka-row (カ, キ, ク, ケ, コ)</option>
+</select>
+
+<div id="score">Score: 0</div>
+<div id="timer">Time left: 10s</div>
+
+<div id="kana" aria-live="polite" aria-atomic="true">あ</div>
+
+<div id="choices" role="list"></div>
+<div id="feedback" role="alert" aria-live="assertive"></div>
+
+<div id="shop">
+  <h2>Item Shop</h2>
+  <p>Buy a hint to get the correct answer:</p>
+  <button id="buy-hint-btn" aria-label="Buy Hint for 20 points">Buy Hint (cost: 20 points)</button>
 </div>
-  <script>
-    const firebaseConfig = {
+
+<div id="leaderboard" aria-label="Leaderboard">
+  <h2>Leaderboard (Firestore)</h2>
+  <ul id="leaderboard-list"></ul>
+</div>
+
+<!-- Sounds -->
+<audio id="correct-sound" src="audio/correct.mp3" preload="auto"></audio>
+<audio id="wrong-sound" src="audio/wrong.mp3" preload="auto"></audio>
+<audio id="timeout-sound" src="audio/warning.mp3" preload="auto"></audio>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+  // Your Firebase config — replace with your own values!
+  const firebaseConfig = {
       apiKey: "AIzaSyDaAyuSvzzk80iH8ydOTWBRhjkpsIZpYRI",
       authDomain: "hiragana-trainer.firebaseapp.com",
       projectId: "hiragana-trainer",
@@ -113,321 +175,263 @@
       messagingSenderId: "1061396749731",
       appId: "1:1061396749731:web:e3e349d735b9401a4ece16",
       measurementId: "G-BQGGQDPP9T"
-    };
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+  // Kana data by categories
+  const kanaCategories = {
+    "hiragana-a": [
+      { kana: "あ", romaji: "a" },
+      { kana: "い", romaji: "i" },
+      { kana: "う", romaji: "u" },
+      { kana: "え", romaji: "e" },
+      { kana: "お", romaji: "o" }
+    ],
+    "hiragana-ka": [
+      { kana: "か", romaji: "ka" },
+      { kana: "き", romaji: "ki" },
+      { kana: "く", romaji: "ku" },
+      { kana: "け", romaji: "ke" },
+      { kana: "こ", romaji: "ko" }
+    ],
+    "katakana-a": [
+      { kana: "ア", romaji: "a" },
+      { kana: "イ", romaji: "i" },
+      { kana: "ウ", romaji: "u" },
+      { kana: "エ", romaji: "e" },
+      { kana: "オ", romaji: "o" }
+    ],
+    "katakana-ka": [
+      { kana: "カ", romaji: "ka" },
+      { kana: "キ", romaji: "ki" },
+      { kana: "ク", romaji: "ku" },
+      { kana: "ケ", romaji: "ke" },
+      { kana: "コ", romaji: "ko" }
+    ]
+  };
 
-    function login() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider).catch(error => alert(error.message));
+  // State variables
+  let score = 0;
+  let timerSeconds = 10;
+  let timerInterval = null;
+  const maxTimer = 10;
+  let currentCorrectAnswer = "";
+  let userId = null;
+
+  // DOM elements
+  const scoreDiv = document.getElementById("score");
+  const timerDiv = document.getElementById("timer");
+  const kanaDiv = document.getElementById("kana");
+  const choicesDiv = document.getElementById("choices");
+  const leaderboardList = document.getElementById("leaderboard-list");
+  const feedbackDiv = document.getElementById("feedback");
+  const categorySelect = document.getElementById("category-select");
+  const buyHintBtn = document.getElementById("buy-hint-btn");
+
+  const correctSound = document.getElementById("correct-sound");
+  const wrongSound = document.getElementById("wrong-sound");
+  const timeoutSound = document.getElementById("timeout-sound");
+
+  // Simple shuffle helper
+  function shuffle(arr) {
+    for(let i = arr.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i+1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
     }
-
-        function logout() {
-          auth.signOut();
-        }
-
-        auth.onAuthStateChanged(user => {
-          document.getElementById("loginBtn").style.display = user ? "none" : "inline-block";
-          document.getElementById("logoutBtn").style.display = user ? "inline-block" : "none";
-          document.getElementById("user").textContent = user ? `Signed in as: ${user.displayName}` : "Not signed in";
-        });
-
-        // KANA DATA (trimmed for brevity — keep as is in your full version)
-    const kanaData = {
-      hiragana: {
-        a: [
-          { question: "あ", correct: "a", options: ["a", "i", "u"] },
-          { question: "い", correct: "i", options: ["e", "i", "a"] },
-          { question: "う", correct: "u", options: ["o", "u", "e"] },
-          { question: "え", correct: "e", options: ["i", "e", "a"] },
-          { question: "お", correct: "o", options: ["o", "u", "e"] }
-        ],
-        ka: [
-          { question: "か", correct: "ka", options: ["ka", "ga", "ha"] },
-          { question: "き", correct: "ki", options: ["ki", "gi", "ri"] },
-          { question: "く", correct: "ku", options: ["ku", "gu", "su"] },
-          { question: "け", correct: "ke", options: ["ke", "ge", "te"] },
-          { question: "こ", correct: "ko", options: ["ho", "ko", "mo"] }
-        ],
-        sa: [
-          { question: "さ", correct: "sa", options: ["sa", "za", "ta"] },
-          { question: "し", correct: "shi", options: ["shi", "ji", "chi"] },
-          { question: "す", correct: "su", options: ["su", "zu", "tsu"] },
-          { question: "せ", correct: "se", options: ["se", "ze", "te"] },
-          { question: "そ", correct: "so", options: ["so", "zo", "to"] }
-        ],
-        ta: [
-          { question: "た", correct: "ta", options: ["ta", "da", "na"] },
-          { question: "ち", correct: "chi", options: ["chi", "ji", "shi"] },
-          { question: "つ", correct: "tsu", options: ["tsu", "zu", "su"] },
-          { question: "て", correct: "te", options: ["te", "de", "ne"] },
-          { question: "と", correct: "to", options: ["to", "do", "no"] }
-        ],
-        na: [
-          { question: "な", correct: "na", options: ["na", "ta", "ma"] },
-          { question: "に", correct: "ni", options: ["ni", "mi", "ri"] },
-          { question: "ぬ", correct: "nu", options: ["nu", "mu", "ku"] },
-          { question: "ね", correct: "ne", options: ["ne", "re", "me"] },
-          { question: "の", correct: "no", options: ["no", "to", "mo"] }
-        ],
-        ha: [
-          { question: "は", correct: "ha", options: ["ha", "ba", "pa"] },
-          { question: "ひ", correct: "hi", options: ["hi", "bi", "pi"] },
-          { question: "ふ", correct: "fu", options: ["fu", "bu", "pu"] },
-          { question: "へ", correct: "he", options: ["he", "be", "pe"] },
-          { question: "ほ", correct: "ho", options: ["ho", "bo", "po"] }
-        ],
-        ma: [
-          { question: "ま", correct: "ma", options: ["ma", "na", "ba"] },
-          { question: "み", correct: "mi", options: ["mi", "ni", "ri"] },
-          { question: "む", correct: "mu", options: ["mu", "nu", "ku"] },
-          { question: "め", correct: "me", options: ["me", "ne", "re"] },
-          { question: "も", correct: "mo", options: ["mo", "no", "to"] }
-        ],
-        ya: [
-          { question: "や", correct: "ya", options: ["ya", "wa", "ra"] },
-          { question: "ゆ", correct: "yu", options: ["yu", "yo", "yu"] },
-          { question: "よ", correct: "yo", options: ["yo", "yu", "ya"] }
-        ],
-        ra: [
-          { question: "ら", correct: "ra", options: ["ra", "la", "na"] },
-          { question: "り", correct: "ri", options: ["ri", "li", "mi"] },
-          { question: "る", correct: "ru", options: ["ru", "lu", "ku"] },
-          { question: "れ", correct: "re", options: ["re", "le", "ne"] },
-          { question: "ろ", correct: "ro", options: ["ro", "lo", "to"] }
-        ],
-        wa: [
-          { question: "わ", correct: "wa", options: ["wa", "ra", "ma"] },
-          { question: "を", correct: "wo", options: ["wo", "o", "mo"] }
-        ],
-        n: [
-          { question: "ん", correct: "n", options: ["n", "m", "nn"] }
-        ]
-      },
-      katakana: {
-        a: [
-          { question: "ア", correct: "a", options: ["a", "i", "u"] },
-          { question: "イ", correct: "i", options: ["e", "i", "a"] },
-          { question: "ウ", correct: "u", options: ["o", "u", "e"] },
-          { question: "エ", correct: "e", options: ["i", "e", "a"] },
-          { question: "オ", correct: "o", options: ["o", "u", "e"] }
-        ],
-        ka: [
-          { question: "カ", correct: "ka", options: ["ka", "ga", "ha"] },
-          { question: "キ", correct: "ki", options: ["ki", "gi", "ri"] },
-          { question: "ク", correct: "ku", options: ["ku", "gu", "su"] },
-          { question: "ケ", correct: "ke", options: ["ke", "ge", "te"] },
-          { question: "コ", correct: "ko", options: ["ho", "ko", "mo"] }
-        ],
-        sa: [
-          { question: "サ", correct: "sa", options: ["sa", "za", "ta"] },
-          { question: "シ", correct: "shi", options: ["shi", "ji", "chi"] },
-          { question: "ス", correct: "su", options: ["su", "zu", "tsu"] },
-          { question: "セ", correct: "se", options: ["se", "ze", "te"] },
-          { question: "ソ", correct: "so", options: ["so", "zo", "to"] }
-        ],
-        ta: [
-          { question: "タ", correct: "ta", options: ["ta", "da", "na"] },
-          { question: "チ", correct: "chi", options: ["chi", "ji", "shi"] },
-          { question: "ツ", correct: "tsu", options: ["tsu", "zu", "su"] },
-          { question: "テ", correct: "te", options: ["te", "de", "ne"] },
-          { question: "ト", correct: "to", options: ["to", "do", "no"] }
-        ],
-        na: [
-          { question: "ナ", correct: "na", options: ["na", "ta", "ma"] },
-          { question: "ニ", correct: "ni", options: ["ni", "mi", "ri"] },
-          { question: "ヌ", correct: "nu", options: ["nu", "mu", "ku"] },
-          { question: "ネ", correct: "ne", options: ["ne", "re", "me"] },
-          { question: "ノ", correct: "no", options: ["no", "to", "mo"] }
-        ],
-        ha: [
-          { question: "ハ", correct: "ha", options: ["ha", "ba", "pa"] },
-          { question: "ヒ", correct: "hi", options: ["hi", "bi", "pi"] },
-          { question: "フ", correct: "fu", options: ["fu", "bu", "pu"] },
-          { question: "ヘ", correct: "he", options: ["he", "be", "pe"] },
-          { question: "ホ", correct: "ho", options: ["ho", "bo", "po"] }
-        ],
-        ma: [
-          { question: "マ", correct: "ma", options: ["ma", "na", "ba"] },
-          { question: "ミ", correct: "mi", options: ["mi", "ni", "ri"] },
-          { question: "ム", correct: "mu", options: ["mu", "nu", "ku"] },
-          { question: "メ", correct: "me", options: ["me", "ne", "re"] },
-          { question: "モ", correct: "mo", options: ["mo", "no", "to"] }
-        ],
-        ya: [
-          { question: "ヤ", correct: "ya", options: ["ya", "wa", "ra"] },
-          { question: "ユ", correct: "yu", options: ["yu", "yo", "yu"] },
-          { question: "ヨ", correct: "yo", options: ["yo", "yu", "ya"] }
-        ],
-        ra: [
-          { question: "ラ", correct: "ra", options: ["ra", "la", "na"] },
-          { question: "リ", correct: "ri", options: ["ri", "li", "mi"] },
-          { question: "ル", correct: "ru", options: ["ru", "lu", "ku"] },
-          { question: "レ", correct: "re", options: ["re", "le", "ne"] },
-          { question: "ロ", correct: "ro", options: ["ro", "lo", "to"] }
-        ],
-        wa: [
-          { question: "ワ", correct: "wa", options: ["wa", "ra", "ma"] },
-          { question: "ヲ", correct: "wo", options: ["wo", "o", "mo"] }
-        ],
-        n: [
-          { question: "ン", correct: "n", options: ["n", "m", "nn"] }
-        ]
-      }
-    };
-
-    let currentScript = 'hiragana';
-    let currentCategory = 'a';
-    let currentQuestion;
-    let timer = 10;
-    let timerId;
-    let score = 0;
-    let streak = 0;
-    let isPaused = false;
-    let answerLock = false;
-
-    const questionEl = document.getElementById("question");
-    const optionsEl = document.getElementById("options");
-    const scoreEl = document.getElementById("score");
-    const streakEl = document.getElementById("streak");
-    const timerEl = document.getElementById("timer");
-    const pauseBtn = document.getElementById("pauseBtn");
-    const resumeBtn = document.getElementById("resumeBtn");
-
-    function pickQuestion() {
-      const questions = kanaData[currentScript][currentCategory];
-      if (!questions) {
-        questionEl.textContent = "No questions for this category.";
-        optionsEl.innerHTML = "";
-        return;
-      }
-      currentQuestion = questions[Math.floor(Math.random() * questions.length)];
-    }
-
-    function renderQuestion() {
-      questionEl.textContent = currentQuestion.question;
-      optionsEl.innerHTML = "";
-      currentQuestion.options.forEach(option => {
-        const btn = document.createElement("button");
-        btn.textContent = option;
-        btn.onclick = () => answer(option, btn);
-        optionsEl.appendChild(btn);
-      });
-      answerLock = false;
-    }
-
-    function answer(selected, btn) {
-      if (answerLock) return;
-      answerLock = true;
-      [...optionsEl.children].forEach(b => b.disabled = true);
-
-      if (selected === currentQuestion.correct) {
-        btn.style.backgroundColor = "#28a745";
-        score++;
-        streak++;
-      } else {
-        btn.style.backgroundColor = "#dc3545";
-        streak = 0;
-      }
-
-      updateScore();
-      setTimeout(() => nextQuestion(), 700);
-    }
-
-    function updateScore() {
-      scoreEl.textContent = score;
-      streakEl.textContent = streak;
-    }
-
-    function startTimer() {
-      clearInterval(timerId);
-      timer = 10;
-      timerEl.textContent = `Time: ${timer}`;
-      timerId = setInterval(() => {
-        if (!isPaused) {
-          timer--;
-          timerEl.textContent = `Time: ${timer}`;
-          if (timer <= 0) {
-            clearInterval(timerId);
-            streak = 0;
-            updateScore();
-            nextQuestion();
-          }
-        }
-      }, 1000);
-    }
-
-    function nextQuestion() {
-      pickQuestion();
-      if (!currentQuestion) return;
-      renderQuestion();
-      startTimer();
-    }
-
-    pauseBtn.onclick = () => {
-      isPaused = true;
-      clearInterval(timerId);
-      pauseBtn.style.display = "none";
-      resumeBtn.style.display = "inline-block";
-    };
-
-    resumeBtn.onclick = () => {
-      isPaused = false;
-      pauseBtn.style.display = "inline-block";
-      resumeBtn.style.display = "none";
-      nextQuestion();
-    };
-
-    document.getElementById("script").onchange = e => {
-      currentScript = e.target.value;
-      score = 0;
-      streak = 0;
-      updateScore();
-      nextQuestion();
-    };
-
-    document.getElementById("category").onchange = e => {
-      currentCategory = e.target.value;
-      score = 0;
-      streak = 0;
-      updateScore();
-      nextQuestion();
-    };
-
-    window.onload = () => {
-      nextQuestion();
-    };
-    let multiplier = 1;
-
-function addPoints(points) {
-  score += points * multiplier;
-  updateScore();
-}
-let activeItems = [];
-
-auth.onAuthStateChanged(async user => {
-  if (user) {
-    userId = user.uid;
-    const doc = await db.collection("users").doc(userId).get();
-    score = doc.data().score || 0;
-    activeItems = doc.data().items || [];
-
-    // Activate effects
-    if (activeItems.includes("double_score")) {
-      multiplier = 2;
-    }
-    if (activeItems.includes("extra_time")) {
-      time += 3;
-    }
-    if (activeItems.includes("degen")) {
-      document.body.classList.add("degen-effect"); // Add custom style or sound
-    }
-
-    updateScore();
+    return arr;
   }
-});
 
-  </script>
+  // Update score display and leaderboard
+  function updateScore(points) {
+    score += points;
+    if(score < 0) score = 0;
+    scoreDiv.textContent = "Score: " + score;
+    updateLeaderboard(score);
+    updateBuyHintButton();
+  }
+
+  // Enable or disable shop button based on points
+  function updateBuyHintButton(){
+    buyHintBtn.disabled = score < 20;
+  }
+
+  // Timer UI update with flash color effect
+  function updateTimerDisplay() {
+    timerDiv.textContent = `Time left: ${timerSeconds}s`;
+    timerDiv.style.color = timerSeconds <= 3 ? '#b33a3a' : 'black';
+    if(timerSeconds <= 3) {
+      timerDiv.style.backgroundColor = timerDiv.style.backgroundColor === "transparent" ? "#f8d7da" : "transparent";
+      setTimeout(() => {
+        timerDiv.style.backgroundColor = "transparent";
+      }, 300);
+    }
+  }
+
+  // Timer start/reset
+  function startTimer() {
+    timerSeconds = maxTimer;
+    updateTimerDisplay();
+    timerInterval = setInterval(() => {
+      timerSeconds--;
+      updateTimerDisplay();
+      if(timerSeconds <= 0){
+        clearInterval(timerInterval);
+        feedbackDiv.textContent = "Time's up! -5 points";
+        playSound(timeoutSound);
+        updateScore(-5);
+        disableChoices();
+        setTimeout(() => {
+          feedbackDiv.textContent = "";
+          newRound();
+        }, 1500);
+      }
+    }, 1000);
+  }
+
+  // Play sound helper
+  function playSound(sound) {
+    if(sound){
+      sound.pause();
+      sound.currentTime = 0;
+      sound.play();
+    }
+  }
+
+  // Disable all choices buttons after answer or time out
+  function disableChoices() {
+    Array.from(choicesDiv.children).forEach(b => b.disabled = true);
+  }
+
+  // Start a new round of the game
+  function newRound() {
+    feedbackDiv.textContent = "";
+    clearInterval(timerInterval);
+    startTimer();
+
+    const category = categorySelect.value;
+    const kanaList = kanaCategories[category];
+
+    if (!kanaList || kanaList.length === 0) {
+      kanaDiv.textContent = "No kana!";
+      choicesDiv.innerHTML = "";
+      return;
+    }
+
+    // Pick correct kana randomly
+    const correctEntry = kanaList[Math.floor(Math.random() * kanaList.length)];
+    currentCorrectAnswer = correctEntry.romaji;
+    kanaDiv.textContent = correctEntry.kana;
+
+    // Pick two wrong options
+    let wrongOptions = [];
+    while(wrongOptions.length < 2){
+      const candidate = kanaList[Math.floor(Math.random() * kanaList.length)].romaji;
+      if(candidate !== correctEntry.romaji && !wrongOptions.includes(candidate)){
+        wrongOptions.push(candidate);
+      }
+    }
+
+    // Shuffle answers
+    const options = shuffle([correctEntry.romaji, ...wrongOptions]);
+
+    // Create buttons
+    choicesDiv.innerHTML = '';
+
+    options.forEach(option => {
+      const btn = document.createElement('button');
+      btn.textContent = option;
+      btn.setAttribute("role", "listitem");
+      btn.onclick = () => {
+        clearInterval(timerInterval);
+        disableChoices();
+        if(option === correctEntry.romaji){
+          btn.classList.add("correct");
+          feedbackDiv.textContent = "Correct! +10 points";
+          playSound(correctSound);
+          updateScore(10);
+        } else {
+          btn.classList.add("wrong");
+          feedbackDiv.textContent = `Wrong! Correct: ${correctEntry.romaji} -5 points`;
+          playSound(wrongSound);
+          updateScore(-5);
+        }
+        setTimeout(() => {
+          feedbackDiv.textContent = "";
+          newRound();
+        }, 1500);
+      };
+      choicesDiv.appendChild(btn);
+    });
+  }
+
+  // Buy a hint: Reveal correct answer but costs points
+  buyHintBtn.onclick = () => {
+    if(score >= 20){
+      updateScore(-20);
+      feedbackDiv.textContent = `Hint: The correct answer is "${currentCorrectAnswer}"`;
+    }
+  };
+
+  // Firebase auth and leaderboard logic
+  async function signInAnonymously() {
+    try {
+      const userCredential = await auth.signInAnonymously();
+      userId = userCredential.user.uid;
+      loadLeaderboard();
+    } catch (error) {
+      console.error("Authentication error:", error);
+      alert("Firebase Authentication failed. Please check your config.");
+    }
+  }
+
+  // Update user's score in Firestore
+  async function updateLeaderboard(newScore) {
+    if(!userId) return;
+    const userDoc = db.collection('leaderboard').doc(userId);
+    try {
+      await userDoc.set({ score: newScore }, { merge: true });
+      loadLeaderboard();
+    } catch (error) {
+      console.error("Error updating leaderboard:", error);
+    }
+  }
+
+  // Load leaderboard top 10 users from Firestore
+  async function loadLeaderboard() {
+    try {
+      const querySnapshot = await db.collection('leaderboard')
+        .orderBy('score', 'desc')
+        .limit(10)
+        .get();
+
+      leaderboardList.innerHTML = "";
+      querySnapshot.forEach(doc => {
+        const li = document.createElement('li');
+        li.textContent = `User: ${doc.id.substring(0,6)} — Score: ${doc.data().score}`;
+        leaderboardList.appendChild(li);
+      });
+    } catch (error) {
+      console.error("Error loading leaderboard:", error);
+    }
+  }
+
+  // Initialize game on load
+  window.onload = () => {
+    signInAnonymously();
+    updateBuyHintButton();
+    newRound();
+  };
+
+  // Restart round on category change
+  categorySelect.addEventListener("change", () => {
+    clearInterval(timerInterval);
+    feedbackDiv.textContent = "";
+    newRound();
+  });
+
+</script>
+
 </body>
 </html>
